@@ -14,31 +14,30 @@ export async function GET(
     }
 
     const order = await prisma.order.findUnique({
-      where: { id: params.id },
+  where: { id: params.id },
+  include: {
+    restaurant: {
+      select: {
+        name: true,
+        image: true,
+        ownerId: true,   // REQUIRED
+      },
+    },
+    items: {
       include: {
-        restaurant: {
+        menuItem: {
           select: {
             name: true,
             image: true,
           },
         },
-        items: {
-          include: {
-            menuItem: {
-              select: {
-                name: true,
-                image: true,
-              },
-            },
-          },
-        },
-        tracking: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
       },
-    })
+    },
+    tracking: {
+      orderBy: { createdAt: 'desc' },
+    },
+  },
+})
 
     if (!order) {
       return NextResponse.json(
