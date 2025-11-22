@@ -10,7 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum UserRole {
   CUSTOMER
   RESTAURANT_OWNER
@@ -44,18 +43,18 @@ enum PaymentMethod {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  password      String
-  name          String
-  phone         String?
-  role          UserRole @default(CUSTOMER)
-  avatar        String?
-  language      String   @default("en")
-  currency      String   @default("USD")
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(CUSTOMER)
+  avatar    String?
+  language  String   @default("en")
+  currency  String   @default("USD")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   addresses     Address[]
@@ -63,64 +62,65 @@ model User {
   restaurant    Restaurant?
   deliveries    Delivery[]
   notifications Notification[]
+  reviews       Review[] // ← FIX ADDED
 
   @@index([email])
   @@index([role])
 }
 
 model Address {
-  id          String   @id @default(cuid())
-  userId      String
-  label       String
-  street      String
-  city        String
-  state       String
-  zipCode     String
-  country     String
-  latitude    Float?
-  longitude   Float?
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  label     String
+  street    String
+  city      String
+  state     String
+  zipCode   String
+  country   String
+  latitude  Float?
+  longitude Float?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model Restaurant {
-  id            String   @id @default(cuid())
-  ownerId       String   @unique
-  name          String
-  description   String?
-  cuisine       String
-  image         String?
-  rating        Float    @default(0)
-  reviewCount   Int      @default(0)
-  deliveryTime  Int      // in minutes
-  deliveryFee   Float    @default(0)
-  minOrder      Float    @default(0)
-  isActive      Boolean  @default(true)
-  isOpen        Boolean  @default(true)
-  address       String
-  city          String
-  state         String
-  zipCode       String
-  country       String
-  latitude      Float?
-  longitude     Float?
-  phone         String?
-  email         String?
-  openingTime   String
-  closingTime   String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  ownerId      String   @unique
+  name         String
+  description  String?
+  cuisine      String
+  image        String?
+  rating       Float    @default(0)
+  reviewCount  Int      @default(0)
+  deliveryTime Int
+  deliveryFee  Float    @default(0)
+  minOrder     Float    @default(0)
+  isActive     Boolean  @default(true)
+  isOpen       Boolean  @default(true)
+  address      String
+  city         String
+  state        String
+  zipCode      String
+  country      String
+  latitude     Float?
+  longitude    Float?
+  phone        String?
+  email        String?
+  openingTime  String
+  closingTime  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  categories    Category[]
-  menuItems     MenuItem[]
-  orders        Order[]
-  reviews       Review[]
+  owner      User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  categories Category[]
+  menuItems  MenuItem[]
+  orders     Order[]
+  reviews    Review[]
 
   @@index([isActive, isOpen])
   @@index([cuisine])
@@ -128,42 +128,42 @@ model Restaurant {
 }
 
 model Category {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   restaurantId String
   name         String
   description  String?
   image        String?
-  sortOrder    Int       @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  menuItems    MenuItem[]
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItems  MenuItem[]
 
   @@index([restaurantId])
 }
 
 model MenuItem {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   restaurantId String
   categoryId   String?
   name         String
   description  String?
   image        String?
   price        Float
-  prepTime     Int       // in minutes
-  isAvailable  Boolean   @default(true)
-  isVegetarian Boolean   @default(false)
-  isVegan      Boolean   @default(false)
-  isSpicy      Boolean   @default(false)
+  prepTime     Int
+  isAvailable  Boolean  @default(true)
+  isVegetarian Boolean  @default(false)
+  isVegan      Boolean  @default(false)
+  isSpicy      Boolean  @default(false)
   calories     Int?
-  sortOrder    Int       @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  category     Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  orderItems   OrderItem[]
+  restaurant Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category   Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  orderItems OrderItem[]
 
   @@index([restaurantId])
   @@index([categoryId])
@@ -171,35 +171,35 @@ model MenuItem {
 }
 
 model Order {
-  id              String        @id @default(cuid())
-  userId          String
-  restaurantId    String
-  deliveryId      String?
-  orderNumber     String        @unique
-  status          OrderStatus   @default(PENDING)
-  subtotal        Float
-  deliveryFee     Float
-  tax             Float
-  discount        Float         @default(0)
-  total           Float
-  paymentStatus   PaymentStatus @default(PENDING)
-  paymentMethod   PaymentMethod?
-  deliveryAddress String
-  deliveryLat     Float?
-  deliveryLng     Float?
+  id                  String         @id @default(cuid())
+  userId              String
+  restaurantId        String
+  deliveryId          String?        @unique // ← ADD THIS LINE
+  orderNumber         String         @unique
+  status              OrderStatus    @default(PENDING)
+  subtotal            Float
+  deliveryFee         Float
+  tax                 Float
+  discount            Float          @default(0)
+  total               Float
+  paymentStatus       PaymentStatus  @default(PENDING)
+  paymentMethod       PaymentMethod?
+  deliveryAddress     String
+  deliveryLat         Float?
+  deliveryLng         Float?
   specialInstructions String?
-  estimatedTime   Int?          // in minutes
-  deliveredAt     DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  estimatedTime       Int?
+  deliveredAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
-  user            User          @relation(fields: [userId], references: [id])
-  restaurant      Restaurant    @relation(fields: [restaurantId], references: [id])
-  delivery        Delivery?     @relation(fields: [deliveryId], references: [id])
-  items           OrderItem[]
-  payment         Payment?
-  tracking        OrderTracking[]
-  reviews         Review[]
+  user       User            @relation(fields: [userId], references: [id])
+  restaurant Restaurant      @relation(fields: [restaurantId], references: [id])
+  delivery   Delivery?       @relation(fields: [deliveryId], references: [id]) // ← STAYS SAME
+  items      OrderItem[]
+  payment    Payment?
+  tracking   OrderTracking[]
+  reviews    Review[]
 
   @@index([userId])
   @@index([restaurantId])
@@ -209,38 +209,38 @@ model Order {
 }
 
 model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  menuItemId  String
-  quantity    Int
-  price       Float    // price at time of order
+  id             String   @id @default(cuid())
+  orderId        String
+  menuItemId     String
+  quantity       Int
+  price          Float
   specialRequest String?
-  createdAt   DateTime @default(now())
+  createdAt      DateTime @default(now())
 
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
 
   @@index([orderId])
 }
 
 model Delivery {
-  id            String   @id @default(cuid())
-  userId        String   // delivery partner
-  orderId       String   @unique
-  currentLat    Float?
-  currentLng    Float?
-  pickupLat     Float?
-  pickupLng     Float?
-  deliveryLat   Float?
-  deliveryLng   Float?
-  startedAt     DateTime?
-  pickedUpAt    DateTime?
-  deliveredAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String    @id @default(cuid())
+  userId      String
+  orderId     String    @unique
+  currentLat  Float?
+  currentLng  Float?
+  pickupLat   Float?
+  pickupLng   Float?
+  deliveryLat Float?
+  deliveryLng Float?
+  startedAt   DateTime?
+  pickedUpAt  DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  user          User     @relation(fields: [userId], references: [id])
-  order         Order    @relation(fields: [orderId], references: [id])
+  user  User   @relation(fields: [userId], references: [id])
+  order Order? // ← FIXED: remove fields + references
 
   @@index([userId])
   @@index([orderId])
@@ -255,27 +255,27 @@ model OrderTracking {
   locationLng Float?
   createdAt   DateTime    @default(now())
 
-  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([createdAt])
 }
 
 model Payment {
-  id            String        @id @default(cuid())
-  orderId       String        @unique
-  amount        Float
-  currency      String        @default("USD")
-  status        PaymentStatus @default(PENDING)
-  method        PaymentMethod
-  transactionId String?
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  amount          Float
+  currency        String        @default("USD")
+  status          PaymentStatus @default(PENDING)
+  method          PaymentMethod
+  transactionId   String?
   stripePaymentId String?
-  failureReason String?
-  paidAt        DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  failureReason   String?
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
-  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([status])
@@ -287,15 +287,15 @@ model Review {
   userId       String
   restaurantId String
   orderId      String
-  rating       Int      // 1-5
+  rating       Int
   comment      String?
-  images       String[] // array of image URLs
+  images       String[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user         User     @relation(fields: [userId], references: [id])
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  order        Order    @relation(fields: [orderId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  order      Order      @relation(fields: [orderId], references: [id])
 
   @@index([restaurantId])
   @@index([userId])
@@ -307,12 +307,12 @@ model Notification {
   userId    String
   title     String
   message   String
-  type      String   // order, payment, promotion, etc.
+  type      String
   isRead    Boolean  @default(false)
   link      String?
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([isRead])
