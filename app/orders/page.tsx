@@ -25,11 +25,6 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (session) {
-      fetchOrders()
-    }
-  }, [session])
-
   const fetchOrders = async () => {
     try {
       const response = await fetch('/api/orders')
@@ -41,6 +36,12 @@ export default function OrdersPage() {
       setLoading(false)
     }
   }
+
+  if (session) {
+    fetchOrders()
+  }
+}, [session])
+
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {

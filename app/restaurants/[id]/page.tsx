@@ -8,6 +8,8 @@ import Footer from '@/components/Footer'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import Image from 'next/image'
+
 
 interface MenuItem {
   id: string
@@ -157,11 +159,9 @@ export default function RestaurantPage() {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="w-full md:w-64 h-48 bg-gray-200 rounded-lg flex items-center justify-center">
                 {restaurant.image ? (
-                  <img
-                    src={restaurant.image}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
+                  <Image src="/logo.png.png" width={200} height={200} alt="Logo" />
+
+
                 ) : (
                   <span className="text-gray-400">No Image</span>
                 )}
